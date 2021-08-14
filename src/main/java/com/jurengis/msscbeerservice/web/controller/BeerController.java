@@ -3,6 +3,7 @@ package com.jurengis.msscbeerservice.web.controller;
 import com.jurengis.msscbeerservice.web.model.BeerDto;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.UUID;
@@ -18,13 +19,13 @@ public class BeerController {
   }
 
   @PostMapping
-  public ResponseEntity<Void> saveNewBeer(@RequestBody BeerDto beerDto) {
+  public ResponseEntity<Void> saveNewBeer(@RequestBody @Validated BeerDto beerDto) {
     // TODO: impl
     return new ResponseEntity<>(HttpStatus.CREATED);
   }
 
   @PutMapping("/{beerId}")
-  public ResponseEntity<Void> updateBeer(@PathVariable UUID beerId, @RequestBody BeerDto beerDto) {
+  public ResponseEntity<Void> updateBeer(@PathVariable UUID beerId, @RequestBody @Validated BeerDto beerDto) {
     // TODO: impl
     return new ResponseEntity<>(HttpStatus.NO_CONTENT);
   }
