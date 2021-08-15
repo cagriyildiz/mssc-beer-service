@@ -1,6 +1,7 @@
 package com.jurengis.msscbeerservice.web.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.jurengis.msscbeerservice.bootstrap.BeerLoader;
 import com.jurengis.msscbeerservice.service.BeerService;
 import com.jurengis.msscbeerservice.web.model.BeerDto;
 import com.jurengis.msscbeerservice.web.model.BeerStyleEnum;
@@ -70,7 +71,7 @@ class BeerControllerTest {
         .beerName("My Beer")
         .beerStyle(BeerStyleEnum.ALE)
         .price(new BigDecimal("2.99"))
-        .upc(123123123123L)
+        .upc(BeerLoader.BEER_1_UPC)
         .build();
   }
 }
