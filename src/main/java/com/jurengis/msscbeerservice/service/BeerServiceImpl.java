@@ -5,10 +5,15 @@ import com.jurengis.msscbeerservice.repository.BeerRepository;
 import com.jurengis.msscbeerservice.web.controller.NotFoundException;
 import com.jurengis.msscbeerservice.web.mappers.BeerMapper;
 import com.jurengis.msscbeerservice.web.model.BeerDto;
+import com.jurengis.msscbeerservice.web.model.BeerPagedList;
+import com.jurengis.msscbeerservice.web.model.BeerStyleEnum;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -16,6 +21,32 @@ public class BeerServiceImpl implements BeerService {
 
   private final BeerRepository beerRepository;
   private final BeerMapper beerMapper;
+
+  @Override
+  public BeerPagedList listBeers(String beerName, BeerStyleEnum beerStyle, PageRequest pageRequest) {
+    Page<Beer> beerPage;
+
+    if (!beerName.isEmpty() && !beerStyle.name().isEmpty()) {
+      beerPage = beerRepository.findAllByBeerNameAndBeerStyle(beerName, beerStyle.name(), pageRequest);
+    } else if (!beerName.isEmpty()) {
+      beerPage = beerRepository.findAllByBeerName(beerName, pageRequest);
+    } else if (!beerStyle.name().isEmpty()) {
+      beerPage = beerRepository.findAllByBeerStyle(beerStyle.name(), pageRequest);
+    } else {
+      beerPage = beerRepository.findAll(pageRequest);
+    }
+
+    return new BeerPagedList(beerPage
+        .getContent()
+        .stream()
+        .map(beerMapper::beerToBeerDto)
+        .collect(Collectors.toList()),
+        PageRequest
+            .of(beerPage.getPageable().getPageNumber(),
+                beerPage.getPageable().getPageSize()),
+        beerPage.getTotalElements()
+    );
+  }
 
   @Override
   public BeerDto getById(UUID beerId) {
