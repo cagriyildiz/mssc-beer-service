@@ -11,6 +11,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
+import org.springframework.util.ObjectUtils;
 
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -26,11 +27,11 @@ public class BeerServiceImpl implements BeerService {
   public BeerPagedList listBeers(String beerName, BeerStyleEnum beerStyle, PageRequest pageRequest) {
     Page<Beer> beerPage;
 
-    if (!beerName.isEmpty() && !beerStyle.name().isEmpty()) {
+    if (!ObjectUtils.isEmpty(beerName) && !ObjectUtils.isEmpty(beerStyle)) {
       beerPage = beerRepository.findAllByBeerNameAndBeerStyle(beerName, beerStyle.name(), pageRequest);
-    } else if (!beerName.isEmpty()) {
+    } else if (!ObjectUtils.isEmpty(beerName)) {
       beerPage = beerRepository.findAllByBeerName(beerName, pageRequest);
-    } else if (!beerStyle.name().isEmpty()) {
+    } else if (!ObjectUtils.isEmpty(beerStyle)) {
       beerPage = beerRepository.findAllByBeerStyle(beerStyle.name(), pageRequest);
     } else {
       beerPage = beerRepository.findAll(pageRequest);
