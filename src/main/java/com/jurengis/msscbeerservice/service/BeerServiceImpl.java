@@ -14,6 +14,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.ObjectUtils;
 
 import java.util.UUID;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 @Service
@@ -24,7 +25,7 @@ public class BeerServiceImpl implements BeerService {
   private final BeerMapper beerMapper;
 
   @Override
-  public BeerPagedList listBeers(String beerName, BeerStyleEnum beerStyle, PageRequest pageRequest) {
+  public BeerPagedList listBeers(String beerName, BeerStyleEnum beerStyle, PageRequest pageRequest, boolean showInventoryOnHand) {
     Page<Beer> beerPage;
 
     if (!ObjectUtils.isEmpty(beerName) && !ObjectUtils.isEmpty(beerStyle)) {
@@ -37,10 +38,12 @@ public class BeerServiceImpl implements BeerService {
       beerPage = beerRepository.findAll(pageRequest);
     }
 
+    Function<Beer, BeerDto> mapBeerToBeerDto = showInventoryOnHand ?
+        beerMapper::beerToBeerDtoWithInventory : beerMapper::beerToBeerDto;
     return new BeerPagedList(beerPage
         .getContent()
         .stream()
-        .map(beerMapper::beerToBeerDto)
+        .map(mapBeerToBeerDto)
         .collect(Collectors.toList()),
         PageRequest
             .of(beerPage.getPageable().getPageNumber(),
@@ -50,9 +53,9 @@ public class BeerServiceImpl implements BeerService {
   }
 
   @Override
-  public BeerDto getById(UUID beerId) {
-    return beerMapper.beerToBeerDto(beerRepository.findById(beerId)
-        .orElseThrow(NotFoundException::new));
+  public BeerDto getById(UUID beerId, boolean showInventoryOnHand) {
+    Beer beer = beerRepository.findById(beerId).orElseThrow(NotFoundException::new);
+    return showInventoryOnHand ? beerMapper.beerToBeerDtoWithInventory(beer) : beerMapper.beerToBeerDto(beer);
   }
 
   @Override
